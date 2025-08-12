@@ -1,9 +1,80 @@
-<!DOCTYPE html>
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Script tự động build HTML từ file products.json
+Sử dụng: python build.py
+"""
+
+import json
+import os
+from datetime import datetime
+
+def load_products_data():
+    """Đọc dữ liệu từ file products.json"""
+    try:
+        with open('products.json', 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print("❌ Không tìm thấy file products.json")
+        return None
+    except json.JSONDecodeError as e:
+        print(f"❌ Lỗi định dạng JSON: {e}")
+        return None
+
+def generate_product_html(product):
+    """Tạo HTML cho một sản phẩm"""
+    badge_class = product.get('badge_type', 'hot')
+    if badge_class == 'hot':
+        badge_html = f'<div class="product-badge">{product["badge"]}</div>'
+    else:
+        badge_html = f'<div class="product-badge {badge_class}">{product["badge"]}</div>'
+    
+    # Xử lý giá (nếu không có giá cũ thì chỉ hiển thị giá mới)
+    price_html = ""
+    if product.get('old_price') and product['old_price'].strip():
+        price_html = f'''
+                            <span class="old-price">{product['old_price']}</span>
+                            <span class="new-price">{product['new_price']}</span>'''
+    else:
+        price_html = f'''
+                            <span class="new-price">{product['new_price']}</span>'''
+    
+    return f'''
+                <!-- Product {product['id']} - {product['name']} -->
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="images/{product['image']}" alt="{product['name']}">
+                        {badge_html}
+                    </div>
+                    <div class="product-info">
+                        <h3>{product['name']}</h3>
+                        <p class="product-description">{product['description']}</p>
+                        <div class="product-price">{price_html}
+                        </div>
+                        <a href="{product['affiliate_link']}" class="btn-buy" target="_blank">
+                            <i class="fas fa-shopping-cart"></i>
+                            Mua Ngay
+                        </a>
+                    </div>
+                </div>'''
+
+def generate_html(data):
+    """Tạo file HTML hoàn chỉnh"""
+    website_info = data['website_info']
+    products = data['products']
+    
+    # Tạo HTML cho tất cả sản phẩm
+    products_html = ""
+    for product in products:
+        products_html += generate_product_html(product)
+    
+    # Template HTML hoàn chỉnh
+    html_template = f'''<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tiếp Thị Liên Kết - Sản Phẩm Hot</title>
+    <title>{website_info['title']}</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -27,7 +98,7 @@
     <section class="hero">
         <div class="container">
             <h2>Khám Phá Những Sản Phẩm Tuyệt Vời</h2>
-            <p>Chúng tôi giới thiệu những sản phẩm chất lượng cao với giá tốt nhất</p>
+            <p>{website_info['description']}</p>
             <a href="#products" class="btn-primary">Xem Sản Phẩm</a>
         </div>
     </section>
@@ -38,83 +109,7 @@
             <h2 class="section-title">Sản Phẩm Nổi Bật</h2>
             
             <!-- Product Grid -->
-            <div class="product-grid">
-                <!-- Product 1 - Màn Hình JC4832W535 -->
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="images/JC3248W535.jpg" alt="Màn Hình JC4832W535">
-                        <div class="product-badge">Hot</div>
-                    </div>
-                    <div class="product-info">
-                        <h3>Màn Hình JC4832W535</h3>
-                        <p class="product-description">ESP32 S3 Development Board with 3.5inch IPS Smart Touch Screen Built-In Firmware</p>
-                        <div class="product-price">
-                            <span class="old-price">600,000đ</span>
-                            <span class="new-price">560,000đ</span>
-                        </div>
-                        <a href="https://s.shopee.vn/9KXnJe7dWm" class="btn-buy" target="_blank">
-                            <i class="fas fa-shopping-cart"></i>
-                            Mua Ngay
-                        </a>
-                    </div>
-                </div>
-                <!-- Product 2 - ESP32 Development Board -->
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="images/esp32-board.jpg" alt="ESP32 Development Board">
-                        <div class="product-badge sale">Sale</div>
-                    </div>
-                    <div class="product-info">
-                        <h3>ESP32 Development Board</h3>
-                        <p class="product-description">Bo mạch phát triển ESP32 với WiFi, Bluetooth, GPIO đầy đủ. Lý tưởng cho IoT projects.</p>
-                        <div class="product-price">
-                            <span class="old-price">350,000đ</span>
-                            <span class="new-price">280,000đ</span>
-                        </div>
-                        <a href="https://s.shopee.vn/esp32-development-board" class="btn-buy" target="_blank">
-                            <i class="fas fa-shopping-cart"></i>
-                            Mua Ngay
-                        </a>
-                    </div>
-                </div>
-                <!-- Product 3 - Sản Phẩm 3 -->
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="images/product-3.jpg" alt="Sản Phẩm 3">
-                        <div class="product-badge new">New</div>
-                    </div>
-                    <div class="product-info">
-                        <h3>Sản Phẩm 3</h3>
-                        <p class="product-description">Mô tả sản phẩm 3. Bạn có thể thay đổi tên, mô tả và link affiliate tại đây.</p>
-                        <div class="product-price">
-                            <span class="old-price">500,000đ</span>
-                            <span class="new-price">399,000đ</span>
-                        </div>
-                        <a href="https://s.shopee.vn/your-affiliate-link-3" class="btn-buy" target="_blank">
-                            <i class="fas fa-shopping-cart"></i>
-                            Mua Ngay
-                        </a>
-                    </div>
-                </div>
-                <!-- Product 4 - Sản Phẩm 4 -->
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="images/product-4.jpg" alt="Sản Phẩm 4">
-                        <div class="product-badge">Top</div>
-                    </div>
-                    <div class="product-info">
-                        <h3>Sản Phẩm 4</h3>
-                        <p class="product-description">Mô tả sản phẩm 4. Bạn có thể thay đổi tên, mô tả và link affiliate tại đây.</p>
-                        <div class="product-price">
-                            <span class="old-price">800,000đ</span>
-                            <span class="new-price">650,000đ</span>
-                        </div>
-                        <a href="https://s.shopee.vn/your-affiliate-link-4" class="btn-buy" target="_blank">
-                            <i class="fas fa-shopping-cart"></i>
-                            Mua Ngay
-                        </a>
-                    </div>
-                </div>
+            <div class="product-grid">{products_html}
                 
                 <!-- Thêm sản phẩm mới tại đây -->
                 
@@ -162,17 +157,17 @@
                 <div class="contact-item">
                     <i class="fas fa-phone"></i>
                     <h4>Điện thoại</h4>
-                    <p>033 637 9944</p>
+                    <p>{website_info['contact']['phone']}</p>
                 </div>
                 <div class="contact-item">
                     <i class="fas fa-envelope"></i>
                     <h4>Email</h4>
-                    <p>lehoaigiangg@gmail.com</p>
+                    <p>{website_info['contact']['email']}</p>
                 </div>
                 <div class="contact-item">
                     <i class="fas fa-map-marker-alt"></i>
                     <h4>Địa chỉ</h4>
-                    <p>Ninh Kiều Cần Thơ</p>
+                    <p>{website_info['contact']['address']}</p>
                 </div>
             </div>
         </div>
@@ -218,6 +213,54 @@
     <script src="script.js"></script>
     
     <!-- Build info -->
-    <!-- Generated automatically from products.json at 2025-08-12 12:49:49 -->
+    <!-- Generated automatically from products.json at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} -->
 </body>
-</html>
+</html>'''
+    
+    return html_template
+
+def main():
+    """Hàm chính"""
+    print("🚀 Bắt đầu build HTML từ products.json...")
+    
+    # Đọc dữ liệu
+    data = load_products_data()
+    if not data:
+        return
+    
+    # Kiểm tra thư mục images
+    if not os.path.exists('images'):
+        print("⚠️  Cảnh báo: Thư mục 'images' không tồn tại")
+    
+    # Kiểm tra file hình ảnh
+    missing_images = []
+    for product in data['products']:
+        image_path = os.path.join('images', product['image'])
+        if not os.path.exists(image_path):
+            missing_images.append(product['image'])
+    
+    if missing_images:
+        print("⚠️  Cảnh báo: Các file hình ảnh sau không tồn tại:")
+        for img in missing_images:
+            print(f"   - images/{img}")
+    
+    # Tạo HTML
+    html_content = generate_html(data)
+    
+    # Ghi file
+    try:
+        with open('index.html', 'w', encoding='utf-8') as f:
+            f.write(html_content)
+        
+        print("✅ Build thành công!")
+        print(f"📄 File index.html đã được tạo với {len(data['products'])} sản phẩm")
+        print(f"🕒 Thời gian build: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        
+        if missing_images:
+            print(f"⚠️  {len(missing_images)} hình ảnh bị thiếu - vui lòng kiểm tra thư mục images/")
+        
+    except Exception as e:
+        print(f"❌ Lỗi khi ghi file: {e}")
+
+if __name__ == "__main__":
+    main()
