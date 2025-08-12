@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Hình Ảnh</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .test-image {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            display: block;
+            margin: 20px auto;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔍 Test Hiển Thị Hình Ảnh</h1>
+        
+        <div class="info status">
+            <strong>Đang test file:</strong> images/JC3248W535.jpg
+        </div>
+        
+        <h3>Hình ảnh sản phẩm:</h3>
+        <img src="images/JC3248W535.jpg" 
+             alt="jc4832w535 ESP32 S3 Development Board" 
+             class="test-image"
+             onload="showSuccess()" 
+             onerror="showError()">
+        
+        <div id="result-status"></div>
+        
+        <h3>Thông tin file:</h3>
+        <ul>
+            <li><strong>Đường dẫn:</strong> images/JC3248W535.jpg</li>
+            <li><strong>Alt text:</strong> jc4832w535 ESP32 S3 Development Board</li>
+            <li><strong>Kích thước file:</strong> ~59KB</li>
+        </ul>
+        
+        <h3>Các bước kiểm tra:</h3>
+        <ol>
+            <li>✅ File tồn tại trong thư mục images/</li>
+            <li>✅ Tên file chính xác: JC3248W535.jpg</li>
+            <li>✅ Cú pháp HTML đúng</li>
+            <li>❓ Hình ảnh có hiển thị không?</li>
+        </ol>
+        
+        <div class="info status">
+            <strong>Hướng dẫn:</strong><br>
+            - Nếu hình hiển thị → Code hoàn toàn đúng!<br>
+            - Nếu không hiển thị → Xem thông báo lỗi bên dưới
+        </div>
+    </div>
+
+    <script>
+        function showSuccess() {
+            document.getElementById('result-status').innerHTML = 
+                '<div class="success status"><strong>✅ THÀNH CÔNG!</strong><br>Hình ảnh đã load thành công. Code của bạn hoàn toàn đúng!</div>';
+        }
+        
+        function showError() {
+            document.getElementById('result-status').innerHTML = 
+                '<div class="error status"><strong>❌ LỖI!</strong><br>Không thể load hình ảnh. Có thể do:<br>• File bị lỗi hoặc không đúng định dạng<br>• Đường dẫn sai<br>• File bị khóa hoặc không có quyền truy cập</div>';
+        }
+        
+        // Kiểm tra sau 2 giây nếu chưa có kết quả
+        setTimeout(function() {
+            if (document.getElementById('result-status').innerHTML === '') {
+                document.getElementById('result-status').innerHTML = 
+                    '<div class="info status"><strong>⏳ ĐANG TẢI...</strong><br>Hình ảnh đang được tải. Vui lòng đợi...</div>';
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
